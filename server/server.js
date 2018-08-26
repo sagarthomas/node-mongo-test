@@ -28,7 +28,7 @@ app.get('/todos', (req, res) => {
     }, (e) => {
         res.status(400).send(e);
     });
-})
+});
 
 app.listen(3000, () => {
     console.log('Started on port 3000');
@@ -36,3 +36,4 @@ app.listen(3000, () => {
 
 module.exports = {app};
 
+//C:\Program Files\MongoDB\Server\4.0\bin>mongod.exe --dbpath /Users/sagar/mongo-data
