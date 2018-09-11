@@ -56,6 +56,28 @@ userSchema.methods.generateAuthToken = function () {
     });
 };
 
+// Use statics when creating non-instance methods aka static methods
+userSchema.statics.findByToken = function (token) {
+    var User = this; // We use capital "User" for dealing with statics
+
+    var decoded;
+
+    try {
+        decoded = jwt.verify(token, 'abc123');
+    } catch (e) {
+        return Promise.reject();
+    }
+
+    // We return the result in order to return a promise object so we can then chain
+    // a .then to the end of findByToken
+    // In this case we wrapped id and tokens.token in quotes in order to allow the '.' operator
+    return User.findOne({
+        '_id':decoded._id,
+        'tokens.token': token,
+        'tokens.access': 'auth'
+    });
+};
+
 var User = mongoose.model('User', userSchema);
 
 module.exports = {User};
