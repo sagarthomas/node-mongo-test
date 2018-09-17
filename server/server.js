@@ -2,6 +2,7 @@ require('./config/config');
 const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcryptjs');
 
 const {mongoose} = require('./db/mongoose');
 const {ObjectId} = require('mongodb');
@@ -113,7 +114,23 @@ app.post('/users', (req, res) => {
 
 app.get('/users/me', authenticate, (req, res) => {
     res.send(req.user);
-})
+});
+
+app.post('/users/login', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+    var email = body.email;
+    // Query the database
+    User.findByCredentials(body.email, body.password).then((user) => {
+        //Returning the promise keeps the chain alive and allows it
+        //to chain to the catch calls. This way, if generate token
+        //rejects, the same catch call will handle it
+        return user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user);
+        });
+;    }).catch((e) => {
+        res.status(400).send();
+    });
+});
 
 app.listen(port, () => {
     console.log(`Started on port ${port}`);
